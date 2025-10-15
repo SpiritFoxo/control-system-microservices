@@ -1,0 +1,42 @@
+services:
+
+  api-gateway:
+    build: ./api-gateway/
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+
+  service-orders:
+    build: ./service-orders/
+    container_name: service-orders
+    restart: always
+    ports:
+      - "${ORDERS_PORT}:${ORDERS_PORT}"
+    depends_on:
+      - postgres
+
+  service-users:
+    build: ./service-users/
+    container_name: service-users
+    restart: always
+    ports:
+      - "${USERS_PORT}:${USERS_PORT}"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17.4-alpine3.21
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  minio_data:
