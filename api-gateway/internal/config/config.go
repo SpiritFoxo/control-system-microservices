@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -20,14 +21,14 @@ func Load() *Config {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file: %v", err)
+		log.Printf("Warning: .env not found, using environment variables: %v", err)
 	}
 
 	cfg := &Config{
-		Addr:             ":" + viper.GetString("GATEWAY_PORT"),
-		UsersServiceURL:  viper.GetString("USERS_SERVICE_URL"),
-		OrdersServiceURL: viper.GetString("ORDERS_SERVICE_URL"),
-		JWTSecret:        viper.GetString("TOKEN_SECRET"),
+		Addr:             ":" + getEnv("GATEWAY_PORT", "8080"),
+		UsersServiceURL:  getEnv("USERS_SERVICE_URL", "http://service-users:8082"),
+		OrdersServiceURL: getEnv("ORDERS_SERVICE_URL", "http://service-orders:8081"),
+		JWTSecret:        getEnv("TOKEN_SECRET", "your-default-secret"),
 	}
 
 	if cfg.Addr == ":" || cfg.UsersServiceURL == "" || cfg.OrdersServiceURL == "" {
@@ -36,4 +37,15 @@ func Load() *Config {
 	}
 
 	return cfg
+}
+
+func getEnv(key, defaultValue string) string {
+	value := viper.GetString(key)
+	if value == "" {
+		value = os.Getenv(key)
+	}
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }

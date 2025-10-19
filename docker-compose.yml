@@ -6,6 +6,11 @@ services:
     restart: always
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    environment:
+      - GATEWAY_PORT=${GATEWAY_PORT}
+      - USERS_SERVICE_URL=${USERS_SERVICE_URL}
+      - ORDERS_SERVICE_URL=${ORDERS_SERVICE_URL}
+      - TOKEN_SECRET=${TOKEN_SECRET}
 
   service-orders:
     build: ./service-orders/
@@ -15,6 +20,14 @@ services:
       - "${ORDERS_PORT}:${ORDERS_PORT}"
     depends_on:
       - postgres
+    environment:
+      - ORDERS_PORT=${ORDERS_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - DB_SSLMODE=${DB_SSLMODE}
 
   service-users:
     build: ./service-users/
@@ -24,6 +37,18 @@ services:
       - "${USERS_PORT}:${USERS_PORT}"
     depends_on:
       - postgres
+    environment:
+      - USERS_PORT=${USERS_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - DB_SSLMODE=${DB_SSLMODE}
+      - TOKEN_SECRET=${TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - TOKEN_MINUTE_LIFESPAN=${TOKEN_MINUTE_LIFESPAN}
+      - REFRESH_TOKEN_HOUR_LIFESPAN=${REFRESH_TOKEN_HOUR_LIFESPAN}
 
   postgres:
     image: postgres:17.4-alpine3.21
@@ -39,4 +64,3 @@ services:
 
 volumes:
   postgres_data:
-  minio_data:
