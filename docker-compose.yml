@@ -11,6 +11,8 @@ services:
       - USERS_SERVICE_URL=${USERS_SERVICE_URL}
       - ORDERS_SERVICE_URL=${ORDERS_SERVICE_URL}
       - TOKEN_SECRET=${TOKEN_SECRET}
+    networks:
+      - control-system-network
 
   service-orders:
     build: ./service-orders/
@@ -23,11 +25,14 @@ services:
     environment:
       - ORDERS_PORT=${ORDERS_PORT}
       - DB_HOST=${DB_HOST}
-      - DB_NAME=${DB_NAME}
+      - DB_NAME=${DB_NAME_ORDERS}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - DB_SSLMODE=${DB_SSLMODE}
+    networks:
+      - control-system-network
+    
 
   service-users:
     build: ./service-users/
@@ -40,7 +45,7 @@ services:
     environment:
       - USERS_PORT=${USERS_PORT}
       - DB_HOST=${DB_HOST}
-      - DB_NAME=${DB_NAME}
+      - DB_NAME=${DB_NAME_USERS}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_PORT=${POSTGRES_PORT}
@@ -49,6 +54,9 @@ services:
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
       - TOKEN_MINUTE_LIFESPAN=${TOKEN_MINUTE_LIFESPAN}
       - REFRESH_TOKEN_HOUR_LIFESPAN=${REFRESH_TOKEN_HOUR_LIFESPAN}
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD}
+    networks:
+      - control-system-network
 
   postgres:
     image: postgres:17.4-alpine3.21
@@ -61,6 +69,13 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - control-system-network
 
 volumes:
   postgres_data:
+
+networks:
+  control-system-network:
+    driver: bridge

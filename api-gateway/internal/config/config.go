@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -15,9 +16,7 @@ type Config struct {
 }
 
 func Load() *Config {
-	viper.AddConfigPath(".")
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
+	_ = godotenv.Load()
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
