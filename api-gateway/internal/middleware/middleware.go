@@ -32,7 +32,7 @@ func JWTAuth() gin.HandlerFunc {
 		}
 
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-		_, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
@@ -46,6 +46,46 @@ func JWTAuth() gin.HandlerFunc {
 			})
 			c.Abort()
 			return
+		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			userIDStr := ""
+			if idv, exists := claims["id"]; exists {
+				userIDStr = fmt.Sprintf("%v", idv)
+			}
+
+			var roles []string
+			switch raw := claims["roles"].(type) {
+			case []interface{}:
+				for _, r := range raw {
+					if s, ok := r.(string); ok && s != "" {
+						roles = append(roles, s)
+					}
+				}
+			case []string:
+				roles = raw
+			case string:
+				for _, s := range strings.Split(raw, ",") {
+					s = strings.TrimSpace(s)
+					if s != "" {
+						roles = append(roles, s)
+					}
+				}
+			default:
+			}
+
+			if userIDStr != "" {
+				c.Request.Header.Set("X-User-ID", userIDStr)
+			}
+			if len(roles) > 0 {
+				c.Request.Header.Set("X-User-Roles", strings.Join(roles, ","))
+			}
+
+			logger.Info("Authenticated request",
+				zap.String("user_id", userIDStr),
+				zap.Strings("roles", roles),
+				zap.String("path", c.Request.URL.Path),
+			)
 		}
 		c.Next()
 	}
