@@ -36,6 +36,7 @@ require (
 )
 
 require (
+	github.com/SpiritFoxo/control-system-microservices/shared v0.0.0-20251023133618-978db5203743
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect

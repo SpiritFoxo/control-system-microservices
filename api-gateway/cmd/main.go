@@ -1,11 +1,11 @@
 package main
 
 import (
-	"api-gateway/internal/config"
-	"api-gateway/internal/middleware"
-	"api-gateway/internal/routers"
 	"log"
 
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/middleware"
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/routers"
 	"github.com/gin-gonic/gin"
 )
 

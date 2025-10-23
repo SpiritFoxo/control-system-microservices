@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	userroles "github.com/SpiritFoxo/control-system-microservices/shared/user-roles"
+	userroles "github.com/SpiritFoxo/control-system-microservices/shared/userroles"
 	"github.com/gin-gonic/gin"
 )
 

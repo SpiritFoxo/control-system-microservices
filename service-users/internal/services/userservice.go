@@ -11,6 +11,7 @@ import (
 	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
 	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/repositories"
 	"github.com/SpiritFoxo/control-system-microservices/service-users/utils"
+	"github.com/SpiritFoxo/control-system-microservices/shared/userroles"
 )
 
 type UserService struct {
@@ -66,11 +67,11 @@ func isValidEmail(email string) bool {
 
 func isValidRole(role string) bool {
 	validRoles := []string{
-		models.RoleEngineer,
-		models.RoleManager,
-		models.RoleObserver,
-		models.RoleAdmin,
-		models.RoleSuperadmin,
+		userroles.RoleEngineer,
+		userroles.RoleManager,
+		userroles.RoleObserver,
+		userroles.RoleAdmin,
+		userroles.RoleSuperadmin,
 	}
 	for _, validRole := range validRoles {
 		if role == validRole {
@@ -92,7 +93,7 @@ func (s *UserService) RegisterUser(input RegisterUserInput) (*UserResponse, erro
 		return nil, errors.New("password must be at least 8 characters")
 	}
 	if len(input.Roles) == 0 {
-		input.Roles = []string{models.RoleEngineer}
+		//input.Roles = []string{models.RoleEngineer}
 	}
 
 	for _, role := range input.Roles {

@@ -9,14 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	RoleEngineer   = "engineer"
-	RoleManager    = "manager"
-	RoleObserver   = "observer"
-	RoleAdmin      = "admin"
-	RoleSuperadmin = "superadmin"
-)
-
 type User struct {
 	gorm.Model
 	Email    string         `gorm:"unique;uniqueIndex;not null"`

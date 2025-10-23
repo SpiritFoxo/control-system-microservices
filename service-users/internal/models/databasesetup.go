@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/shared/userroles"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ func Setup(cfg *config.Config) (*gorm.DB, error) {
 		adminUser := &User{
 			Name:     "Admin",
 			Email:    "admin@controlsystem.ru",
-			Roles:    []string{RoleSuperadmin},
+			Roles:    []string{userroles.RoleSuperadmin},
 			Password: cfg.SuperadminPassword,
 		}
 
