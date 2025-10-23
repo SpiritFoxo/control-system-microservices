@@ -34,6 +34,16 @@ func response(c *gin.Context, status int, success bool, data interface{}, err er
 	})
 }
 
+// RegisterUser
+// @Summary Creates a new user
+// @Description Creates a new user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body services.RegisterUserInput true "User data"
+// @Success 201 {object} services.UserResponse "Successfully created user"
+// @Security BearerAuth
+// @Router /admin/users/register [post]
 func (h *UserHandler) RegisterUser(c *gin.Context) {
 	var input services.RegisterUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -81,6 +91,15 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 	}, nil)
 }
 
+// @Summary Gets user by ID
+// @Description Gets user by ID
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param userId path int true "User ID"
+// @Success 200 {object} services.UserResponse "User data"
+// @Security BearerAuth
+// @Router /admin/users/{userId} [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	idStr := c.Param("userId")
 	id, err := strconv.Atoi(idStr)
@@ -98,6 +117,16 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 	response(c, http.StatusOK, true, user, nil)
 }
 
+// @Summary Update user
+// @Description Updates user information by provided ID
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param userId path int true "User ID"
+// @Param user body services.EditUserInput true "Обновлённые данные пользователя"
+// @Success 200 {object} services.UserResponse "Обновлённый пользователь"
+// @Security BearerAuth
+// @Router /admin/users/{userId} [put]
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	idStr := c.Param("userId")
 	id, err := strconv.Atoi(idStr)
@@ -127,6 +156,17 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	response(c, http.StatusOK, true, user, nil)
 }
 
+// @Summary Get users list
+// @Description Retrieves a paginated list of users
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of records per page"
+// @Param email query string false "Email filter"
+// @Success 200 {object} services.UserListResult "List of users"
+// @Security BearerAuth
+// @Router /admin/users [get]
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
