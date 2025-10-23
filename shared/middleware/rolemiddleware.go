@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/SpiritFoxo/control-system-microservices/shared/models"
+	userroles "github.com/SpiritFoxo/control-system-microservices/shared/user-roles"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +37,7 @@ func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		for _, r := range roles {
-			if r == models.RoleAdmin || r == models.RoleSuperadmin {
+			if r == userroles.RoleAdmin || r == userroles.RoleSuperadmin {
 				c.Next()
 				return
 			}
