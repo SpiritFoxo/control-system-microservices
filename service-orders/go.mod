@@ -1,4 +1,4 @@
-module service-orders
+module github.com/SpiritFoxo/control-system-microservices/service-orders
 
 go 1.24.2
 

@@ -2,13 +2,13 @@ package main
 
 import (
 	"log"
-	"service-users/internal/config"
-	"service-users/internal/handlers"
-	"service-users/internal/models"
-	"service-users/internal/routers"
 
-	_ "service-users/docs"
+	_ "github.com/SpiritFoxo/control-system-microservices/service-users/docs"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/handlers"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/routers"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

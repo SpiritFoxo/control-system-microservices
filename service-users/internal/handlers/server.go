@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"service-users/internal/config"
-	"service-users/internal/repositories"
-	"service-users/internal/services"
-
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/repositories"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/services"
 	"gorm.io/gorm"
 )
 

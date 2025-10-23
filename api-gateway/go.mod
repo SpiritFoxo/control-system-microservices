@@ -1,4 +1,4 @@
-module api-gateway
+module github.com/SpiritFoxo/control-system-microservices/api-gateway
 
 go 1.24.2
 

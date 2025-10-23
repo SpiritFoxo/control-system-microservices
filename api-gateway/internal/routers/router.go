@@ -1,12 +1,12 @@
 package routers
 
 import (
-	"api-gateway/internal/config"
-	"api-gateway/internal/middleware"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 

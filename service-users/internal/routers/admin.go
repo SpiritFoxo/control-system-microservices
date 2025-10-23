@@ -1,10 +1,10 @@
 package routers
 
 import (
-	"service-users/internal/handlers"
-	"service-users/internal/middleware"
-	"service-users/internal/models"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/handlers"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/middleware"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
 	"github.com/gin-gonic/gin"
 )
 

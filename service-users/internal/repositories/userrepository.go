@@ -2,9 +2,9 @@ package repositories
 
 import (
 	"fmt"
-	"service-users/internal/models"
 	"strings"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
 	"gorm.io/gorm"
 )
 

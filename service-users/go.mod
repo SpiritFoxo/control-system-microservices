@@ -1,4 +1,4 @@
-module service-users
+module github.com/SpiritFoxo/control-system-microservices/service-users
 
 go 1.24.2
 

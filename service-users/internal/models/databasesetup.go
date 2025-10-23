@@ -2,8 +2,8 @@ package models
 
 import (
 	"log"
-	"service-users/internal/config"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

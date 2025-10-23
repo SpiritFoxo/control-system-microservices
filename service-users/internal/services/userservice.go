@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"service-users/internal/config"
-	"service-users/internal/models"
-	"service-users/internal/repositories"
-	"service-users/utils"
+
 	"strings"
+
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/repositories"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/utils"
 )
 
 type UserService struct {

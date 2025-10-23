@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"service-users/internal/services"
 	"strconv"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/services"
 	"github.com/gin-gonic/gin"
 )
 

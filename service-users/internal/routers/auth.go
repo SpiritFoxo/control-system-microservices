@@ -1,8 +1,7 @@
 package routers
 
 import (
-	"service-users/internal/handlers"
-
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/handlers"
 	"github.com/gin-gonic/gin"
 )
 

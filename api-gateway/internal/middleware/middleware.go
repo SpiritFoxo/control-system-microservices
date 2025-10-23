@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"api-gateway/internal/config"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

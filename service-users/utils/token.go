@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"service-users/internal/config"
-	"service-users/internal/models"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )

@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"net/http"
-	"service-users/internal/models"
 	"strings"
 
+	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
