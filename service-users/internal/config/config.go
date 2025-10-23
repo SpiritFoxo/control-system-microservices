@@ -31,7 +31,7 @@ func Load() *Config {
 	cfg := &Config{
 		UsersPort:                getEnv("USERS_PORT", "8082"),
 		DBHost:                   getEnv("DB_HOST", "localhost"),
-		DBName:                   getEnv("DB_NAME", "postgres"),
+		DBName:                   getEnv("DB_NAME_USERS", "postgres"),
 		PostgresUser:             getEnv("POSTGRES_USER", "postgres"),
 		PostgresPassword:         getEnv("POSTGRES_PASSWORD", "password"),
 		PostgresPort:             getEnv("POSTGRES_PORT", "5432"),
