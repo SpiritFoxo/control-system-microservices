@@ -3,6 +3,7 @@ module github.com/SpiritFoxo/control-system-microservices/service-users
 go 1.24.2
 
 require (
+	github.com/SpiritFoxo/control-system-microservices/shared v0.0.0-20251023135104-bc9c8bee3d4c
 	github.com/gin-gonic/gin v1.11.0
 	github.com/swaggo/swag v1.8.12
 )
@@ -36,7 +37,6 @@ require (
 )
 
 require (
-	github.com/SpiritFoxo/control-system-microservices/shared v0.0.0-20251023133618-978db5203743
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
@@ -66,13 +66,13 @@ require (
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	golang.org/x/arch v0.20.0 // indirect
-	golang.org/x/crypto v0.40.0
-	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
-	golang.org/x/tools v0.35.0 // indirect
+	golang.org/x/crypto v0.43.0
+	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.0

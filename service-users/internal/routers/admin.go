@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/SpiritFoxo/control-system-microservices/service-users/internal/handlers"
-	middleware "github.com/SpiritFoxo/control-system-microservices/shared/middleware"
+	"github.com/SpiritFoxo/control-system-microservices/shared/middleware"
 	"github.com/gin-gonic/gin"
 )
 
