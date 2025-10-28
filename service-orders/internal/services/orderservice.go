@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/config"
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/models"
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/repositories"
@@ -37,6 +39,21 @@ type CreateOrderInput struct {
 	Status     string           `json:"status" binding:"required,oneof=created in_progress completed cancelled"`
 	OrderItems []OrderItemInput `json:"order_items" binding:"required,min=1"`
 	Cost       int              `json:"cost" binding:"required,min=0"`
+}
+
+type OrderListInput struct {
+	Page   int    `form:"page" json:"page"`
+	Limit  int    `form:"limit" json:"limit"`
+	UserID uint   `form:"userId" json:"userId"`
+	Status string `form:"status" json:"status"`
+}
+
+type OrderListResponse struct {
+	Orders     []*OrderResponse `json:"orders"`
+	Total      int64            `json:"total"`
+	Page       int              `json:"page"`
+	Limit      int              `json:"limit"`
+	TotalPages int              `json:"totalPages"`
 }
 
 type OrderItemInput struct {
@@ -154,14 +171,21 @@ func (s *OrderService) DeleteOrder(id uint) error {
 	return nil
 }
 
-func (s *OrderService) GetOrders() ([]*OrderResponse, error) {
+func (s *OrderService) GetOrders(input OrderListInput) (*OrderListResponse, error) {
 
-	var orders []models.Order
-	if err := s.orderRepo.GetOrders(&orders); err != nil {
+	if input.Page < 1 {
+		return nil, errors.New("invalid page number")
+	}
+	if input.Limit < 1 {
+		return nil, errors.New("invalid limit value")
+	}
+
+	orders, total, err := s.orderRepo.GetOrders(input.Page, input.Limit, input.UserID, input.Status)
+	if err != nil {
 		return nil, err
 	}
 
-	var orderResponses []*OrderResponse
+	response := make([]*OrderResponse, 0, len(orders))
 	for _, order := range orders {
 		orderResponse := &OrderResponse{
 			ID:         order.ID,
@@ -177,8 +201,16 @@ func (s *OrderService) GetOrders() ([]*OrderResponse, error) {
 				Quantity: item.Quantity,
 			}
 		}
-		orderResponses = append(orderResponses, orderResponse)
+		response = append(response, orderResponse)
 	}
 
-	return orderResponses, nil
+	totalPages := int((total + int64(input.Limit) - 1) / int64(input.Limit))
+
+	return &OrderListResponse{
+		Orders:     response,
+		Total:      total,
+		Page:       input.Page,
+		Limit:      input.Limit,
+		TotalPages: totalPages,
+	}, nil
 }

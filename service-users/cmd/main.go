@@ -44,7 +44,7 @@ func SetupRouter() *gin.Engine {
 
 // @title Users Service API
 // @version 1.0
-// @description API для управления пользователями в системе
+// @description API for user management
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:8082

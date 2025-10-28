@@ -35,6 +35,7 @@ func response(c *gin.Context, status int, success bool, data interface{}, err er
 }
 
 // RegisterUser
+// RegisterUser
 // @Summary Creates a new user
 // @Description Creates a new user
 // @Tags Users
@@ -67,13 +68,17 @@ func (h *UserHandler) RegisterUser(c *gin.Context) {
 	response(c, http.StatusCreated, true, user, nil)
 }
 
+// LoginUser
+// @Summary performs login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body services.LoginInput true "User data"
+// @Succes 200 {object} map[string]interface{} "User auth data"
+// @Router /auth/login [post]
 func (h *UserHandler) LoginUser(c *gin.Context) {
-	type LoginInput struct {
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required"`
-	}
 
-	var input LoginInput
+	var input services.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response(c, http.StatusBadRequest, false, nil, err)
 		return
@@ -91,6 +96,7 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 	}, nil)
 }
 
+// GetUserById
 // @Summary Gets user by ID
 // @Description Gets user by ID
 // @Tags Users
@@ -117,6 +123,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 	response(c, http.StatusOK, true, user, nil)
 }
 
+// UpdateUser
 // @Summary Update user
 // @Description Updates user information by provided ID
 // @Tags Users
@@ -156,6 +163,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	response(c, http.StatusOK, true, user, nil)
 }
 
+// GetUsers
 // @Summary Get users list
 // @Description Retrieves a paginated list of users
 // @Tags Users

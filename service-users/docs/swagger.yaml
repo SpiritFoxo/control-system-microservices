@@ -9,6 +9,16 @@ definitions:
           type: string
         type: array
     type: object
+  services.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   services.RegisterUserInput:
     properties:
       email:
@@ -53,7 +63,7 @@ definitions:
 host: localhost:8082
 info:
   contact: {}
-  description: API для управления пользователями в системе
+  description: API for user management
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -165,6 +175,23 @@ paths:
       summary: Creates a new user
       tags:
       - Users
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/services.LoginInput'
+      produces:
+      - application/json
+      responses: {}
+      summary: performs login
+      tags:
+      - users
 securityDefinitions:
   BearerAuth:
     in: header

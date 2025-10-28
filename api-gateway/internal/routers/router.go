@@ -6,8 +6,11 @@ import (
 	"net/url"
 
 	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/config"
+	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/handlers"
 	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/middleware"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Setup(r *gin.Engine, cfg *config.Config) {
@@ -21,6 +24,9 @@ func Setup(r *gin.Engine, cfg *config.Config) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "API Gateway is running"})
 	})
+	r.GET("/swagger-docs/doc.json", handlers.SwaggerHandler(cfg))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger-docs/doc.json")))
+
 }
 
 func setupProxy(target string) gin.HandlerFunc {

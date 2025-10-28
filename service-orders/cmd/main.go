@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	_ "github.com/SpiritFoxo/control-system-microservices/service-orders/docs"
+
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/config"
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/handlers"
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/models"
@@ -39,7 +41,7 @@ func SetupRouter() *gin.Engine {
 
 // @title Orders Service API
 // @version 1.0
-// @description API для управления заказами в системе
+// @description API for order management
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:8081
@@ -48,6 +50,6 @@ func SetupRouter() *gin.Engine {
 // @in header
 // @name Authorization
 func main() {
-	r := gin.Default()
+	r := SetupRouter()
 	r.Run(":8081")
 }
