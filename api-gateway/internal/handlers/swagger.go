@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/SpiritFoxo/control-system-microservices/api-gateway/internal/config"
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,9 @@ func SwaggerHandler(cfg *config.Config) gin.HandlerFunc {
 			safeGetSchemas(usersSwagger),
 			safeGetSchemas(ordersSwagger),
 		)
+
+		updateRefs(mergedPaths)
+		updateRefs(mergedSchemas)
 
 		mergedSwagger := map[string]interface{}{
 			"openapi": "3.0.0",
@@ -132,10 +136,32 @@ func safeGetSchemas(swagger map[string]interface{}) interface{} {
 	if swagger == nil {
 		return nil
 	}
-	comp, ok := swagger["components"].(map[string]interface{})
-	if !ok {
-		return nil
+	if comp, ok := swagger["components"].(map[string]interface{}); ok {
+		if schemas, ok := comp["schemas"]; ok {
+			return schemas
+		}
 	}
-	schemas, _ := comp["schemas"]
-	return schemas
+	if definitions, ok := swagger["definitions"]; ok {
+		return definitions
+	}
+	return nil
+}
+
+func updateRefs(obj interface{}) {
+	switch v := obj.(type) {
+	case map[string]interface{}:
+		for key, val := range v {
+			if key == "$ref" {
+				if str, ok := val.(string); ok {
+					v[key] = strings.Replace(str, "#/definitions/", "#/components/schemas/", -1)
+				}
+			} else {
+				updateRefs(val)
+			}
+		}
+	case []interface{}:
+		for _, item := range v {
+			updateRefs(item)
+		}
+	}
 }

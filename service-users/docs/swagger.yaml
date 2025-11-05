@@ -191,7 +191,7 @@ paths:
       responses: {}
       summary: performs login
       tags:
-      - users
+      - Auth
 securityDefinitions:
   BearerAuth:
     in: header

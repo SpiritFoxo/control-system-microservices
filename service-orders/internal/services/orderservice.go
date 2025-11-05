@@ -2,10 +2,13 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/config"
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/models"
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/repositories"
+	"github.com/SpiritFoxo/control-system-microservices/shared/userroles"
 )
 
 type OrderService struct {
@@ -23,7 +26,7 @@ func NewOrderService(orderRepo *repositories.OrderRepository, cfg *config.Config
 type OrderResponse struct {
 	ID         uint                `json:"id"`
 	UserID     uint                `json:"user_id"`
-	Status     string              `json:"status"`
+	Status     models.OrderStatus  `json:"status"`
 	Cost       int                 `json:"cost"`
 	OrderItems []OrderItemResponse `json:"order_items"`
 }
@@ -35,10 +38,10 @@ type OrderItemResponse struct {
 }
 
 type CreateOrderInput struct {
-	UserID     uint             `json:"user_id" binding:"required"`
-	Status     string           `json:"status" binding:"required,oneof=created in_progress completed cancelled"`
-	OrderItems []OrderItemInput `json:"order_items" binding:"required,min=1"`
-	Cost       int              `json:"cost" binding:"required,min=0"`
+	UserID     uint               `json:"user_id" binding:"required"`
+	Status     models.OrderStatus `json:"status" binding:"required"`
+	OrderItems []OrderItemInput   `json:"order_items" binding:"required,min=1"`
+	Cost       int                `json:"cost" binding:"required,min=0"`
 }
 
 type OrderListInput struct {
@@ -59,10 +62,6 @@ type OrderListResponse struct {
 type OrderItemInput struct {
 	Name     string `json:"name" binding:"required"`
 	Quantity int    `json:"quantity" binding:"required,min=1"`
-}
-
-type UpdateOrderInput struct {
-	Status string `json:"status" binding:"required,oneof=created in_progress completed cancelled"`
 }
 
 func (s *OrderService) GetOrderByID(id uint) (*OrderResponse, error) {
@@ -122,14 +121,14 @@ func (s *OrderService) CreateOrder(input *CreateOrderInput) (*OrderResponse, err
 	return orderResponse, nil
 }
 
-func (s *OrderService) UpdateOrder(id uint, input *UpdateOrderInput) (*OrderResponse, error) {
+func (s *OrderService) UpdateOrder(id uint) (*OrderResponse, error) {
 
 	order, err := s.orderRepo.GetOrderByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	order.Status = input.Status
+	order.NextStatus()
 	if err := s.orderRepo.UpdateOrder(order); err != nil {
 		return nil, err
 	}
@@ -155,6 +154,47 @@ func (s *OrderService) UpdateOrder(id uint, input *UpdateOrderInput) (*OrderResp
 	}
 
 	return orderResponse, nil
+}
+
+func (s *OrderService) CancelOrder(id uint, userID uint, rolesStr string) (*OrderResponse, error) {
+	order, err := s.orderRepo.GetOrderByID(id)
+	if err != nil {
+		return nil, err
+	}
+	roles := strings.Split(rolesStr, ",")
+	for i := range roles {
+		roles[i] = strings.TrimSpace(roles[i])
+	}
+
+	isEngineer := false
+	for _, role := range roles {
+		if role == userroles.RoleEngineer {
+			isEngineer = true
+			break
+		}
+	}
+
+	if isEngineer {
+		if order.UserId != userID {
+			return nil, fmt.Errorf("acess forbiden")
+		}
+	}
+
+	if err := order.Cancel(); err != nil {
+		return nil, err
+	}
+
+	if err := s.orderRepo.UpdateOrder(order); err != nil {
+		return nil, err
+	}
+
+	resp := &OrderResponse{
+		ID:     order.ID,
+		UserID: order.UserId,
+		Status: order.Status,
+		Cost:   order.Cost,
+	}
+	return resp, nil
 }
 
 func (s *OrderService) DeleteOrder(id uint) error {

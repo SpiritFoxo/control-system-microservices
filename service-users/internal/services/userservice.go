@@ -98,7 +98,7 @@ func (s *UserService) RegisterUser(input RegisterUserInput) (*UserResponse, erro
 		return nil, errors.New("password must be at least 8 characters")
 	}
 	if len(input.Roles) == 0 {
-		//input.Roles = []string{models.RoleEngineer}
+		input.Roles = []string{userroles.RoleEngineer}
 	}
 
 	for _, role := range input.Roles {

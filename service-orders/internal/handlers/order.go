@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/SpiritFoxo/control-system-microservices/service-orders/internal/services"
+	"github.com/SpiritFoxo/control-system-microservices/shared/userroles"
 	"github.com/gin-gonic/gin"
 )
 
@@ -56,6 +58,27 @@ func (h *OrderHandler) GetOrderByID(c *gin.Context) {
 // @Security BearerAuth
 // @Router /v1/orders [get]
 func (h *OrderHandler) GetAllOrders(c *gin.Context) {
+	rolesHeader := c.GetHeader("X-User-Roles")
+	if rolesHeader == "" {
+		if v, exists := c.Get("roles"); exists {
+			if rs, ok := v.([]string); ok && len(rs) > 0 {
+				rolesHeader = strings.Join(rs, ",")
+			}
+		}
+	}
+
+	userIdHeader := c.GetHeader("X-User-ID")
+	var tokenUserID uint
+	if userIdHeader != "" {
+		if idInt, err := strconv.Atoi(userIdHeader); err == nil && idInt > 0 {
+			tokenUserID = uint(idInt)
+		}
+	}
+	roles := strings.Split(rolesHeader, ",")
+	for i := range roles {
+		roles[i] = strings.TrimSpace(roles[i])
+	}
+
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
 	userIDStr := c.Query("userId")
@@ -73,6 +96,14 @@ func (h *OrderHandler) GetAllOrders(c *gin.Context) {
 		return
 	}
 
+	isAllowedToViewAllOrders := false
+	for _, role := range roles {
+		if role != userroles.RoleEngineer {
+			isAllowedToViewAllOrders = true
+			break
+		}
+	}
+
 	var userID uint
 	if userIDStr != "" {
 		userIDInt, err := strconv.Atoi(userIDStr)
@@ -81,6 +112,12 @@ func (h *OrderHandler) GetAllOrders(c *gin.Context) {
 			return
 		}
 		userID = uint(userIDInt)
+	}
+
+	if !isAllowedToViewAllOrders {
+		if userID == 0 {
+			userID = tokenUserID
+		}
 	}
 
 	input := services.OrderListInput{
@@ -134,7 +171,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	c.JSON(http.StatusCreated, order)
 }
 
-// UpdateOrder
+// UpdateOrderStatus
 // @Summary Update an order
 // @Description Updates an existing order by ID
 // @Tags Orders
@@ -145,20 +182,63 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 // @Success 200 {object} services.OrderResponse "Updated order"
 // @Security BearerAuth
 // @Router /orders/{orderId} [patch]
-func (h *OrderHandler) UpdateOrder(c *gin.Context) {
+func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	id := c.Param("orderId")
 	var orderID uint
 	if _, err := fmt.Sscanf(id, "%d", &orderID); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order ID"})
 		return
 	}
-	var input services.UpdateOrderInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+	order, err := h.service.UpdateOrder(orderID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, order)
+}
+
+// CancelOrder
+// @Summary Cancels an order
+// @Description Cancels an existing order by ID
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param orderId path int true "Order ID"
+// @Param order body services.UpdateOrderInput true "Order update data"
+// @Success 200 {object} services.OrderResponse "Updated order"
+// @Security BearerAuth
+// @Router /orders/cancel/{orderId} [patch]
+func (h *OrderHandler) CancelOrder(c *gin.Context) {
+	id := c.Param("orderId")
+	var orderID uint
+	if _, err := fmt.Sscanf(id, "%d", &orderID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order ID"})
+		return
+	}
+	userIDStr := c.Request.Header.Get("X-User-ID")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": gin.H{"message": "missing X-User-ID"},
+		})
+		return
+	}
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": gin.H{"message": "broken X-User-ID"},
+		})
 		return
 	}
 
-	order, err := h.service.UpdateOrder(orderID, &input)
+	rolesStr := c.Request.Header.Get("X-User-Roles")
+	if rolesStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": gin.H{"code": "MISSING_HEADER", "message": "Отсутствует заголовок X-User-Roles"},
+		})
+		return
+	}
+	order, err := h.service.CancelOrder(orderID, uint(userID), rolesStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

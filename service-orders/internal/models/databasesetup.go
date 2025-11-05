@@ -16,6 +16,18 @@ func Setup(cfg *config.Config) (*gorm.DB, error) {
 		log.Fatal("Can not connect to the database:", err)
 	}
 
+	createEnumSQL := `
+		DO $$ BEGIN
+			CREATE TYPE order_status AS ENUM ('Created', 'Accepted', 'Processed', 'Closed', 'Canceled');
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+	`
+	if err := db.Exec(createEnumSQL).Error; err != nil {
+		log.Printf("ERROR creating enum: %v", err)
+		return nil, err
+	}
+
 	if err := db.AutoMigrate(&Order{}, &OrderItem{}); err != nil {
 		return nil, err
 	}

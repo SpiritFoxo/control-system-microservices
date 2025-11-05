@@ -12,6 +12,7 @@ func SetupOrdersRoutes(r *gin.RouterGroup, s *handlers.Server) {
 
 	r.GET("/:orderId", h.GetOrderByID)
 	r.POST("/", middleware.RoleMiddleware(userroles.RoleEngineer, userroles.RoleObserver), h.CreateOrder)
-	r.PATCH("/:orderId", middleware.RoleMiddleware(userroles.RoleManager), h.UpdateOrder)
-	r.DELETE("/:orderId", middleware.RoleMiddleware(), h.DeleteOrder)
+	r.PATCH("/:orderId", middleware.RoleMiddleware(userroles.RoleManager), h.UpdateOrderStatus)
+	r.PATCH("/cancel/:orderId", middleware.RoleMiddleware(userroles.RoleEngineer, userroles.RoleManager), h.CancelOrder)
+	r.DELETE("/:orderId", middleware.RoleMiddleware(userroles.RoleManager), h.DeleteOrder)
 }
