@@ -12,11 +12,11 @@ import (
 )
 
 type OrderService struct {
-	orderRepo *repositories.OrderRepository
+	orderRepo repositories.OrderRepositoryInterface
 	cfg       *config.Config
 }
 
-func NewOrderService(orderRepo *repositories.OrderRepository, cfg *config.Config) *OrderService {
+func NewOrderService(orderRepo repositories.OrderRepositoryInterface, cfg *config.Config) *OrderService {
 	return &OrderService{
 		orderRepo: orderRepo,
 		cfg:       cfg,
@@ -64,6 +64,24 @@ type OrderItemInput struct {
 	Quantity int    `json:"quantity" binding:"required,min=1"`
 }
 
+func toOrderResponse(order *models.Order) *OrderResponse {
+	items := make([]OrderItemResponse, len(order.Items))
+	for i, item := range order.Items {
+		items[i] = OrderItemResponse{
+			ID:       item.ID,
+			Name:     item.Name,
+			Quantity: item.Quantity,
+		}
+	}
+	return &OrderResponse{
+		ID:         order.ID,
+		UserID:     order.UserId,
+		Status:     order.Status,
+		Cost:       order.Cost,
+		OrderItems: items,
+	}
+}
+
 func (s *OrderService) GetOrderByID(id uint) (*OrderResponse, error) {
 	order, err := s.orderRepo.GetOrderByID(id)
 	if err != nil {
@@ -90,7 +108,17 @@ func (s *OrderService) GetOrderByID(id uint) (*OrderResponse, error) {
 }
 
 func (s *OrderService) CreateOrder(input *CreateOrderInput) (*OrderResponse, error) {
-	var orderItems []models.OrderItem
+	if len(input.OrderItems) == 0 {
+		return nil, errors.New("order must contain at least one item")
+	}
+
+	orderItems := make([]models.OrderItem, len(input.OrderItems))
+	for i, item := range input.OrderItems {
+		orderItems[i] = models.OrderItem{
+			Name:     item.Name,
+			Quantity: item.Quantity,
+		}
+	}
 
 	order := &models.Order{
 		UserId: input.UserID,
@@ -103,57 +131,33 @@ func (s *OrderService) CreateOrder(input *CreateOrderInput) (*OrderResponse, err
 		return nil, err
 	}
 
-	orderResponse := &OrderResponse{
-		ID:         order.ID,
-		UserID:     order.UserId,
-		Status:     order.Status,
-		Cost:       order.Cost,
-		OrderItems: make([]OrderItemResponse, len(order.Items)),
-	}
-	for i, item := range order.Items {
-		orderResponse.OrderItems[i] = OrderItemResponse{
-			ID:       item.ID,
-			Name:     item.Name,
-			Quantity: item.Quantity,
-		}
-	}
-
-	return orderResponse, nil
+	return toOrderResponse(order), nil
 }
 
 func (s *OrderService) UpdateOrder(id uint) (*OrderResponse, error) {
-
 	order, err := s.orderRepo.GetOrderByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	order.NextStatus()
+	if order.Status == models.StatusClosed || order.Status == models.StatusCanceled {
+		return nil, errors.New("order is already closed")
+	}
+
+	if err := order.NextStatus(); err != nil {
+		return nil, err
+	}
+
 	if err := s.orderRepo.UpdateOrder(order); err != nil {
 		return nil, err
 	}
 
-	updatedOrder, err := s.orderRepo.GetOrderByID(id)
+	updated, err := s.orderRepo.GetOrderByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	orderResponse := &OrderResponse{
-		ID:         updatedOrder.ID,
-		UserID:     updatedOrder.UserId,
-		Status:     updatedOrder.Status,
-		Cost:       updatedOrder.Cost,
-		OrderItems: make([]OrderItemResponse, len(updatedOrder.Items)),
-	}
-	for i, item := range updatedOrder.Items {
-		orderResponse.OrderItems[i] = OrderItemResponse{
-			ID:       item.ID,
-			Name:     item.Name,
-			Quantity: item.Quantity,
-		}
-	}
-
-	return orderResponse, nil
+	return toOrderResponse(updated), nil
 }
 
 func (s *OrderService) CancelOrder(id uint, userID uint, rolesStr string) (*OrderResponse, error) {
@@ -174,10 +178,8 @@ func (s *OrderService) CancelOrder(id uint, userID uint, rolesStr string) (*Orde
 		}
 	}
 
-	if isEngineer {
-		if order.UserId != userID {
-			return nil, fmt.Errorf("acess forbiden")
-		}
+	if isEngineer && order.UserId != userID {
+		return nil, fmt.Errorf("access forbidden")
 	}
 
 	if err := order.Cancel(); err != nil {
@@ -188,13 +190,7 @@ func (s *OrderService) CancelOrder(id uint, userID uint, rolesStr string) (*Orde
 		return nil, err
 	}
 
-	resp := &OrderResponse{
-		ID:     order.ID,
-		UserID: order.UserId,
-		Status: order.Status,
-		Cost:   order.Cost,
-	}
-	return resp, nil
+	return toOrderResponse(order), nil
 }
 
 func (s *OrderService) DeleteOrder(id uint) error {

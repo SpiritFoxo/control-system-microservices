@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -48,8 +47,8 @@ func GenerateRefreshToken(user models.User, cfg *config.Config) (string, error) 
 	return token.SignedString([]byte(cfg.RefreshTokenSecret))
 }
 
-func ValidateToken(c *gin.Context) error {
-	token, err := GetToken(c)
+func ValidateToken(c *gin.Context, cfg *config.Config) error {
+	token, err := GetToken(c, cfg)
 
 	if err != nil {
 		return err
@@ -63,14 +62,14 @@ func ValidateToken(c *gin.Context) error {
 	return errors.New("invalid token provided")
 }
 
-func GetToken(c *gin.Context) (*jwt.Token, error) {
+func GetToken(c *gin.Context, cfg *config.Config) (*jwt.Token, error) {
 	tokenString := getTokenFromRequest(c)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(os.Getenv("API_SECRET")), nil
+		return []byte(cfg.TokenSecret), nil
 	})
 	return token, err
 }
@@ -83,4 +82,13 @@ func getTokenFromRequest(c *gin.Context) string {
 		return splitToken[1]
 	}
 	return ""
+}
+
+func ParseToken(tokenString string, cfg *config.Config) (*jwt.Token, error) {
+	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(cfg.TokenSecret), nil
+	})
 }
