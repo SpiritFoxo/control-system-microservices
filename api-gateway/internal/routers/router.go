@@ -15,11 +15,11 @@ import (
 
 func Setup(r *gin.Engine, cfg *config.Config) {
 	usersProxy := setupProxy(cfg.UsersServiceURL)
-	r.POST("/api/v1/auth/login", middleware.RequestID(), middleware.Logging(), middleware.CORS(), usersProxy)
-	r.Any("/api/v1/admin/*path", middleware.JWTAuth(), middleware.RequestID(), middleware.Logging(), middleware.CORS(), usersProxy)
+	r.POST("/api/v1/auth/login", middleware.RequestID(), middleware.Logging(), middleware.CORS(), middleware.RateLimiterManual(), usersProxy)
+	r.Any("/api/v1/admin/*path", middleware.JWTAuth(), middleware.RequestID(), middleware.Logging(), middleware.CORS(), middleware.RateLimiterManual(), usersProxy)
 
 	ordersProxy := setupProxy(cfg.OrdersServiceURL)
-	r.Any("/api/v1/orders/*path", middleware.JWTAuth(), middleware.RequestID(), middleware.Logging(), middleware.CORS(), ordersProxy)
+	r.Any("/api/v1/orders/*path", middleware.JWTAuth(), middleware.RequestID(), middleware.Logging(), middleware.CORS(), middleware.RateLimiterManual(), ordersProxy)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "API Gateway is running"})

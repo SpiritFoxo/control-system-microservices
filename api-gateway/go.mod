@@ -30,6 +30,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/swaggo/swag v1.8.12 // indirect
@@ -62,6 +63,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
+	github.com/ulule/limiter/v3 v3.11.2
 	go.uber.org/zap v1.27.0
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/sys v0.35.0 // indirect
